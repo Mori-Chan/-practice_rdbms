@@ -1,0 +1,504 @@
+create database if not exists work_db character set utf8;
+create user 'work_user'@'localhost' identified by 'work_password';
+grant all privileges on work_db.* to 'work_user'@'localhost' identified by 'work_password';
+cd C:\Program Files\MySQL\MySQL Server 5.7\bin
+mysql -u work_user -p
+work_password
+
+use work_db;
+Database changed
+show tables;
+Empty set (0.00 sec)
+
+create table sample_table(id int,name varchar(20));
+Query OK, 0 rows affected (0.05 sec)
+
+show tables;
++-------------------+
+| Tables_in_work_db |
++-------------------+
+| sample_table      |
++-------------------+
+1 row in set (0.00 sec)
+
+ describe sample_table;
++-------+-------------+------+-----+---------+-------+
+| Field | Type        | Null | Key | Default | Extra |
++-------+-------------+------+-----+---------+-------+
+| id    | int(11)     | YES  |     | NULL    |       |
+| name  | varchar(20) | YES  |     | NULL    |       |
++-------+-------------+------+-----+---------+-------+
+2 rows in set (0.01 sec)
+
+ drop table sample_table;
+ show tables;
+ create table m_organization(id varchar(20) primary key,name varchar(100));
+ show tables;
+ describe m_organization;
+ create table m_position(id varchar(20) primary key,name varchar(100));
+ describe m_position;
+ create table m_employee(id varchar(20) primary key,family_name varchar(20),first_name varchar(20),sex varchar(1) not null,birthday date);
+ describe m_employee;
+ create table m_members(employee_id varchar(20),organization_id varchar(20),position_id varchar(20),id varchar(20) unique key not null,primary key(employee_id,organization_id));
+ describe m_members;
+ insert into m_employee(id,family_name,first_name,sex,birthday) values ('1','藤田','智','m','1996-10-10'),('2','藤田', '知恵','f','1886-01-05'),('3','袴田','充','m','1990-05-05'),('4','杉原','夏鈴','f','1998-08-13');
+ insert into m_position(id, name) values('administrator', '組織長');
+ insert into m_position(id, name) values('regular', '一般');
+ insert into m_organization(id,name) value ('sales','営業'),('development','開発'),('pr','広報');
+ select * from m_organization;
+ select * from m_position;
+ select * from m_employee;
+ insert into m_employee(id,family_name,first_name,sex,birthday) value ('5','金子','愛美','f','1990/11/11'),('6','大宮司','桃子','f','1965/10/18'),('7','伊藤','陽太','m','1620/03/29'),('8','東雲','信','m','1870/05/05'),('9','大宮司','正人','m','1894/07/31'),('10','五十嵐','泉','f','1452/04/05'),('11','木村','優紀','m','1651/05/15'),('12','吉田','健人','m','2000/08/08'),('13','吉田','栞奈','f','2014/12/24'),('14','吉田','唯','f','1999/01/01');
+ select * from m_employee;
+ insert into m_members(employee_id,organization_id,position_id,id) value ('1','sales','administrator','1'),('2','development','administrator','2'),('3','development','administrator','3'),('4','pr','administrator','4'),('5','sales','regular','5'),('6','sales','regular','6'),('7','development','regular','7'),('8','development','regular','8'),('9','pr','regular','9'),('10','pr','regular','10'),('11','sales','regular','11'),('11','development','regular','12'),('12','development','regular','13'),('12','pr','regular','14'),('13','sales','regular','15'),('13','pr','regular','16'),('14','sales','regular','17'),('14','development','regular','18'),('14','pr','regular','19');
+ ALTER TABLE m_employee CHANGE id id INT( 10 ) AUTO_INCREMENT;
+ select count(*) from m_employee;
++----------+
+| count(*) |
++----------+
+|       14 |
++----------+
+1 row in set (0.00 sec)
+
+ select id, name from m_organization;
++-------------+------+
+| id          | name |
++-------------+------+
+| development | 開発 |
+| pr          | 広報 |
+| sales       | 営業 |
++-------------+------+
+3 rows in set (0.00 sec)
+
+ select id, family_name, first_name, sex from m_employee where sex='f';
++----+-------------+------------+-----+
+| id | family_name | first_name | sex |
++----+-------------+------------+-----+
+| 10 | 五十嵐      | 泉         | f   |
+| 13 | 吉田        | 栞奈       | f   |
+| 14 | 吉田        | 唯         | f   |
+| 2  | 藤田        | 知恵       | f   |
+| 4  | 杉原        | 夏鈴       | f   |
+| 5  | 金子        | 愛美       | f   |
+| 6  | 大宮司      | 桃子       | f   |
++----+-------------+------------+-----+
+7 rows in set (0.00 sec)
+
+ select emp.id as id, emp.family_name as name from m_employee as emp inner join m_members as mem on (emp.id = mem.employee_id) where mem.organization_id='sales';
++----+--------+
+| id | name   |
++----+--------+
+| 1  | 藤田   |
+| 11 | 木村   |
+| 13 | 吉田   |
+| 14 | 吉田   |
+| 5  | 金子   |
+| 6  | 大宮司 |
++----+--------+
+6 rows in set (0.00 sec)
+
+ select emp.id as id, emp.family_name as name from m_employee as emp inner join m_members as mem on (emp.id = mem.employee_id) where mem.organization_id='sales' order by id asc;
++----+--------+
+| id | name   |
++----+--------+
+| 1  | 藤田   |
+| 11 | 木村   |
+| 13 | 吉田   |
+| 14 | 吉田   |
+| 5  | 金子   |
+| 6  | 大宮司 |
++----+--------+
+6 rows in set (0.00 sec)
+
+ select emp.id as id, emp.family_name as name from m_employee as emp inner join m_members as mem on (emp.id = mem.employee_id) where mem.organization_id='sales' order by id desc;
++----+--------+
+| id | name   |
++----+--------+
+| 6  | 大宮司 |
+| 5  | 金子   |
+| 14 | 吉田   |
+| 13 | 吉田   |
+| 11 | 木村   |
+| 1  | 藤田   |
++----+--------+
+6 rows in set (0.00 sec)
+
+ select id, family_name, first_name, sex, birthday from m_employee order by family_name asc, first_name asc;
++----+-------------+------------+-----+------------+
+| id | family_name | first_name | sex | birthday   |
++----+-------------+------------+-----+------------+
+| 10 | 五十嵐      | 泉         | f   | 1452-04-05 |
+| 7  | 伊藤        | 陽太       | m   | 1620-03-29 |
+| 12 | 吉田        | 健人       | m   | 2000-08-08 |
+| 14 | 吉田        | 唯         | f   | 1999-01-01 |
+| 13 | 吉田        | 栞奈       | f   | 2014-12-24 |
+| 6  | 大宮司      | 桃子       | f   | 1965-10-18 |
+| 9  | 大宮司      | 正人       | m   | 1894-07-31 |
+| 11 | 木村        | 優紀       | m   | 1651-05-15 |
+| 4  | 杉原        | 夏鈴       | f   | 1998-08-13 |
+| 8  | 東雲        | 信         | m   | 1870-05-05 |
+| 1  | 藤田        | 智         | m   | 1996-10-10 |
+| 2  | 藤田        | 知恵       | f   | 1886-01-05 |
+| 3  | 袴田        | 充         | m   | 1990-05-05 |
+| 5  | 金子        | 愛美       | f   | 1990-11-11 |
++----+-------------+------------+-----+------------+
+14 rows in set (0.00 sec)
+
+ select id, family_name, first_name, sex, birthday from m_employee order by family_name asc, first_name desc;
++----+-------------+------------+-----+------------+
+| id | family_name | first_name | sex | birthday   |
++----+-------------+------------+-----+------------+
+| 10 | 五十嵐      | 泉         | f   | 1452-04-05 |
+| 7  | 伊藤        | 陽太       | m   | 1620-03-29 |
+| 13 | 吉田        | 栞奈       | f   | 2014-12-24 |
+| 14 | 吉田        | 唯         | f   | 1999-01-01 |
+| 12 | 吉田        | 健人       | m   | 2000-08-08 |
+| 9  | 大宮司      | 正人       | m   | 1894-07-31 |
+| 6  | 大宮司      | 桃子       | f   | 1965-10-18 |
+| 11 | 木村        | 優紀       | m   | 1651-05-15 |
+| 4  | 杉原        | 夏鈴       | f   | 1998-08-13 |
+| 8  | 東雲        | 信         | m   | 1870-05-05 |
+| 2  | 藤田        | 知恵       | f   | 1886-01-05 |
+| 1  | 藤田        | 智         | m   | 1996-10-10 |
+| 3  | 袴田        | 充         | m   | 1990-05-05 |
+| 5  | 金子        | 愛美       | f   | 1990-11-11 |
++----+-------------+------------+-----+------------+
+14 rows in set (0.00 sec)
+
+➀ select * from m_members as men inner join m_employee as emp on (men.employee_id = emp.id) where men.position_id = 'administrator';
++-------------+-----------------+---------------+----+----+-------------+------------+-----+------------+
+| employee_id | organization_id | position_id   | id | id | family_name | first_name | sex | birthday   |
++-------------+-----------------+---------------+----+----+-------------+------------+-----+------------+
+| 1           | sales           | administrator | 1  | 1  | 藤田        | 智         | m   | 1996-10-10 |
+| 2           | development     | administrator | 2  | 2  | 藤田        | 知恵       | f   | 1886-01-05 |
+| 3           | development     | administrator | 3  | 3  | 袴田        | 充         | m   | 1990-05-05 |
+| 4           | pr              | administrator | 4  | 4  | 杉原        | 夏鈴       | f   | 1998-08-13 |
++-------------+-----------------+---------------+----+----+-------------+------------+-----+------------+
+4 rows in set (0.00 sec)
+
+② select family_name, first_name from m_employee as emp inner join m_members as men on (men.employee_id = emp.id) where men.position_id = 'administrator'and men.organization_id = 'development';
++-------------+------------+
+| family_name | first_name |
++-------------+------------+
+| 藤田        | 知恵       |
+| 袴田        | 充         |
++-------------+------------+
+2 rows in set (0.00 sec)
+
+③ select organization_id, position_id from m_members as men inner join m_employee as emp on (men.employee_id = emp.id) where emp.sex = 'm';
++-----------------+---------------+
+| organization_id | position_id   |
++-----------------+---------------+
+| sales           | administrator |
+| development     | regular       |
+| sales           | regular       |
+| development     | regular       |
+| pr              | regular       |
+| development     | administrator |
+| development     | regular       |
+| development     | regular       |
+| pr              | regular       |
++-----------------+---------------+
+9 rows in set (0.00 sec)
+
+④ select organization_id, count(organization_id) from m_members group by organization_id;
++-----------------+------------------------+
+| organization_id | count(organization_id) |
++-----------------+------------------------+
+| development     |                      7 |
+| pr              |                      6 |
+| sales           |                      6 |
++-----------------+------------------------+
+3 rows in set (0.00 sec)
+
+
+
+⑤ select distinct a.family_name, a.first_name from m_employee as a inner join m_members as b on (b.employee_id = a.id) where b.employee_id in (select c.employee_id from m_members as c where c.organization_id = 'sales' and c.employee_id in (select d.employee_id from m_members as d where d.organization_id = 'pr'));
+
+
+⑤ select emp.family_name, emp.first_name from m_employee as emp inner join m_members as mem_a on (emp.id = mem_a.employee_id) inner join m_members as mem_b on (mem_a.employee_id = mem_b.employee_id) where mem_a.organization_id = 'sales' and mem_b.organization_id = 'pr';
+
+
+
++-------------+------------+
+| family_name | first_name |
++-------------+------------+
+| 吉田        | 栞奈       |
+| 吉田        | 唯         |
++-------------+------------+
+2 rows in set (0.00 sec)
+
+ create table t_product (id varchar(20) primary key, name varchar(255) not null, price int);
+Query OK, 0 rows affected (0.05 sec)
+
+ describe t_product;
++-------+--------------+------+-----+---------+-------+
+| Field | Type         | Null | Key | Default | Extra |
++-------+--------------+------+-----+---------+-------+
+| id    | varchar(20)  | NO   | PRI | NULL    |       |
+| name  | varchar(255) | NO   |     | NULL    |       |
+| price | int(11)      | YES  |     | NULL    |       |
++-------+--------------+------+-----+---------+-------+
+3 rows in set (0.02 sec)
+
+ insert into t_product(id, name, price) values('pen', '筆記具', 100);
+Query OK, 1 row affected (0.02 sec)
+
+ insert into t_product(id, name, price) values('pencil', '鉛筆', 50);
+Query OK, 1 row affected (0.02 sec)
+
+ select id, name, price from t_product;
++--------+--------+-------+
+| id     | name   | price |
++--------+--------+-------+
+| pen    | 筆記具 |   100 |
+| pencil | 鉛筆   |    50 |
++--------+--------+-------+
+2 rows in set (0.00 sec)
+
+ update t_product set name='ペン' where id='pen';
+Query OK, 1 row affected (0.02 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+ select * from t_product;                                          );
++--------+------+-------+
+| id     | name | price |
++--------+------+-------+
+| pen    | ペン |   100 |
+| pencil | 鉛筆 |    50 |
++--------+------+-------+
+2 rows in set (0.01 sec)
+
+ delete from t_product where id='pen';
+Query OK, 1 row affected (0.02 sec)
+
+ select * from t_product;
++--------+------+-------+
+| id     | name | price |
++--------+------+-------+
+| pencil | 鉛筆 |    50 |
++--------+------+-------+
+1 row in set (0.00 sec)
+
+ begin;
+Query OK, 0 rows affected (0.00 sec)
+
+ insert into t_product (id,name,price) values ('eraser','消しゴム',150);
+Query OK, 1 row affected (0.00 sec)
+
+ select * from t_product;
++--------+----------+-------+
+| id     | name     | price |
++--------+----------+-------+
+| eraser | 消しゴム |   150 |
+| pencil | 鉛筆     |    50 |
++--------+----------+-------+
+3 rows in set (0.00 sec)
+
+ rollback;
+Query OK, 0 rows affected (0.01 sec)
+
+ select * from t_product;
++--------+------+-------+
+| id     | name | price |
++--------+------+-------+
+| pencil | 鉛筆 |    50 |
++--------+------+-------+
+2 rows in set (0.00 sec)
+
+ begin;
+Query OK, 0 rows affected (0.00 sec)
+
+ insert into t_product (id,name,price) values ('eraser','消しゴム',150);
+Query OK, 1 row affected (0.00 sec)
+
+ select * from t_product;
++--------+----------+-------+
+| id     | name     | price |
++--------+----------+-------+
+| eraser | 消しゴム |   150 |
+| pencil | 鉛筆     |    50 |
++--------+----------+-------+
+3 rows in set (0.00 sec)
+
+ commit;
+Query OK, 0 rows affected (0.01 sec)
+
+ select * from t_product;
++--------+----------+-------+
+| id     | name     | price |
++--------+----------+-------+
+| eraser | 消しゴム |   150 |
+| pencil | 鉛筆     |    50 |
++--------+----------+-------+
+3 rows in set (0.00 sec)
+
+
+
+
+
+ select * from m_members;
++-------------+-----------------+---------------+----+
+| employee_id | organization_id | position_id   | id |
++-------------+-----------------+---------------+----+
+| 1           | sales           | administrator | 1  |
+| 10          | pr              | regular       | 10 |
+| 11          | develoalepment     | regular       | 12 |
+| 11          | ss           | regular       | 11 |
+| 12          | development     | regular       | 13 |
+| 12          | pr              | regular       | 14 |
+| 13          | pr              | regular       | 16 |
+| 13          | sales           | regular       | 15 |
+| 14          | development     | regular       | 18 |
+| 14          | pr              | regular       | 19 |
+| 14          | sales           | regular       | 17 |
+| 2           | development     | administrator | 2  |
+| 3           | development     | administrator | 3  |
+| 4           | pr              | administrator | 4  |
+| 5           | sales           | regular       | 5  |
+| 6           | sales           | regular       | 6  |
+| 7           | development     | regular       | 7  |
+| 8           | development     | regular       | 8  |
+| 9           | pr              | regular       | 9  |
++-------------+-----------------+---------------+----+
+19 rows in set (0.02 sec)
+
+ select * from m_employee;
++----+-------------+------------+-----+------------+
+| id | family_name | first_name | sex | birthday   |
++----+-------------+------------+-----+------------+
+| 1  | 藤田        | 智         | m   | 1996-10-10 |
+| 10 | 五十嵐      | 泉         | f   | 1452-04-05 |
+| 11 | 木村        | 優紀       | m   | 1651-05-15 |
+| 12 | 吉田        | 健人       | m   | 2000-08-08 |
+| 13 | 吉田        | 栞奈       | f   | 2014-12-24 |
+| 14 | 吉田        | 唯         | f   | 1999-01-01 |
+| 2  | 藤田        | 知恵       | f   | 1886-01-05 |
+| 3  | 袴田        | 充         | m   | 1990-05-05 |
+| 4  | 杉原        | 夏鈴       | f   | 1998-08-13 |
+| 5  | 金子        | 愛美       | f   | 1990-11-11 |
+| 6  | 大宮司      | 桃子       | f   | 1965-10-18 |
+| 7  | 伊藤        | 陽太       | m   | 1620-03-29 |
+| 8  | 東雲        | 信         | m   | 1870-05-05 |
+| 9  | 大宮司      | 正人       | m   | 1894-07-31 |
++----+-------------+------------+-----+------------+
+14 rows in set (0.02 sec)
+
+ select * from m_organization;
++-------------+------+
+| id          | name |
++-------------+------+
+| development | 開発 |
+| pr          | 広報 |
+| sales       | 営業 |
++-------------+------+
+3 rows in set (0.01 sec)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+select family_name, first_name from m_employee as emp inner join m_members as mem on (mem.id = emp.id) where mem.employee_id in (select employee_id from m_members as mem group by mem.employee_id having count(*) > 1);
+
+
+select family_name, first_name from m_employee as emp inner join m_members as mem on (mem.id = emp.id) where organization_id = 'sales' intersect select family_name, first_name from m_employee as emp inner join m_members as mem on (mem.id = emp.id) where organization_id = 'pr';
+
+
+select family_name, first_name from m_employee as emp inner join m_members as mem on (mem.id = emp.id) where (employee_id) in (select employee_id from m_members where organization_id = 'sales' intersect select employee_id from m_members where organization_id = 'pr');
+
+
+select
+
+
+select employee_id from m_members where organization_id = 'sales' intersect select employee_id from m_members where organization_id = 'pr';
+
+
+
+
+⑤select family_name, first_name from m_employee as emp inner join m_members as mem on (mem.employeeid = emp.id) where (employee_id) in (select employee_id from m_members where organization_id = 'sales' and employee_id in (select employee_id from m_members where organization_id = 'pr'));
+
+
+select family_name, first_name from m_employee as emp inner join m_members as mem on (mem.id = emp.id) where (mem.employee_id) in (select mem.employee_id from m_members group by m.employee_id having count(*) > 1;
+
+select * from m_members where in (select employee_id from m_members group by employee_id having count(*) > 1);
+
+
+
+
+ select * from m_members as mem where mem.employee_id in (select employee_id from m_members as mem group by mem.employee_id having count(mem.employee_id) > 1);
++-------------+-----------------+---------------+----+
+| employee_id | organization_id | position_id   | id |
++-------------+-----------------+---------------+----+
+| 1           | sales           | administrator | 1  |
+| 11          | sales           | regular       | 11 |
+| 12          | pr              | regular       | 14 |
+| 13          | pr              | regular       | 16 |
+| 13          | sales           | regular       | 15 |
+| 14          | pr              | regular       | 19 |
+| 14          | sales           | regular       | 17 |
+| 5           | sales           | regular       | 5  |
+| 6           | sales           | regular       | 6  |
++-------------+-----------------+---------------+----+
+9 rows in set (0.00 sec)
+
+
+(mem.organization_id = 'sales'or mem.organization_id = 'pr') and
+
+
+
+
+ select family_name, first_name from m_employee as emp inner join m_members as mem on (mem.id = emp.id) where mem.employee_id in (select employee_id from m_members as mem group by mem.employee_id having count(*) > 1);
++-------------+------------+
+| family_name | first_name |
++-------------+------------+
+| 木村        | 優紀       |
+| 吉田        | 健人       |
+| 吉田        | 栞奈       |
+| 吉田        | 唯         |
++-------------+------------+
+4 rows in set (0.00 sec)
+
+
+ select family_name, first_name from m_employee as emp inner join m_members as mem on (mem.employee_id = emp.id) where mem.employee_id in (select employee_id from m_members as mem group by mem.employee_id having count(*) > 1);
++-------------+------------+
+| family_name | first_name |
++-------------+------------+
+| 木村        | 優紀       |
+| 木村        | 優紀       |
+| 吉田        | 健人       |
+| 吉田        | 健人       |
+| 吉田        | 栞奈       |
+| 吉田        | 栞奈       |
+| 吉田        | 唯         |
+| 吉田        | 唯         |
+| 吉田        | 唯         |
++-------------+------------+
+9 rows in set (0.00 sec)
+
+
+
+
+select family_name, first_name from m_employee as emp inner join m_members as mem on (mem.employee_id = emp.id)(select employee_id from m_members as mem where mem.organization_id = 'sales' or mem.organization_id = 'pr')
+
+select employee_id from m_members as mem where sales'
+
+select * group concat(organization_id) from m_members as mem join m_employee as emp on (mem.employee = emp.id) group by mem.employee_id;
+
+select family_name,first_name group_concat(organization_id) as org_id from m_members as mem;
+
+
+select family_name, first_name from m_employee as emp inner join m_members as mem on (mem.id = emp.id) where (employee_id) in (select employee_id from m_members where organization_id = 'sales' intersect select employee_id from m_members where organization_id = 'pr');
+
+
+select employee_id from m_members where organization_id = 'sales' = (select employee_id from m_members where organization_id = 'pr');
